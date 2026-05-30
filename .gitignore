@@ -1,6 +1,7 @@
 # Bases de dados originais e geradas (Muito pesadas para o GitHub)
 Base Varejo.csv
 base_varejo_sprint1.csv
+base_varejo_sprint2.csv
 
 # Arquivos temporários do Python e do sistema
 __pycache__/

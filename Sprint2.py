@@ -1,10 +1,13 @@
-
+#
 # Sprint 2 (Transformação de Strings, Integer e Float e Datetime): Desenvolvimento das funções de limpeza de texto, inteiros e decimais usando métodos e expressões regulares.
-# 01.	Transformando: strings, integer e float 
-#     Curiosidade: o que foi corrigido em 'PR_NOME'?
-# 02.	Buscando não conformidades: datas invalidas
-# 03.	Número e Percentual de não conformidades: datas invalidas - 
-# 04.	Momento: Decisão de exclusão ou Ajuste?
+# 01.	Retirando as colunas NAN
+# 02.	Transformando: strings, integer e float
+# 03.	Curiosidade:  o que foi corrigido em 'PR_NOME'?
+# 04.	Diagnostico de datas invalidas
+# 05.	Buscando não conformidades: datas invalidas
+# 06.	Número e Percentual de não conformidades: datas invalidas - 
+# 07.	Momento: Decisão de exclusão ou Ajuste?
+# 
 
 # %%
 import pandas as pd
@@ -12,10 +15,18 @@ import re
 
 print("Sprint 2 - ")
 print(" Transformando: strings, integer e float")
-
+print("="*65)   
 #  Carregar a base do Sprint 1
 print("-> Carregando a base de dados...")
 df = pd.read_csv('base_varejo_sprint1.csv', sep=',')
+
+# REMOÇÃO DEFINITIVA DAS COLUNAS FANTASMAS (NAN, Unnamed)
+colunas_fantasmas = [col for col in df.columns if 'Unnamed' in col]
+if colunas_fantasmas:
+    # O comando drop com df = remove as colunas definitivamente da memória
+    df = df.drop(columns=colunas_fantasmas)
+    print(f"-> Ação: Exclusao das 4 colunas vazias \n {colunas_fantasmas}\n Excluídas com sucesso!")
+print("="*65)   
 
 # Função para limpar Strings (Textos)
 def limpar_texto(texto):
@@ -23,7 +34,7 @@ def limpar_texto(texto):
         return texto
     return re.sub(r'\s+', ' ', str(texto)).strip().upper()
 
-# 4. Função para limpar Inteiros (IDs e Filhos)
+# Função para limpar Inteiros (IDs e Filhos)
 def limpar_inteiro(valor):
     if pd.isna(valor): 
         return 0
@@ -33,73 +44,11 @@ def limpar_inteiro(valor):
 # ajustes de float ja havia sido realizado na primeira analise da tabela
 pd.set_option('display.float_format', '{:.2f}'.format) 
 
-
 # === APLICAÇÃO NAS SUAS COLUNAS REAIS ===
 colunas_texto = ['CL_GENERO', 'CL_EC', 'CL_SEG', 'PR_CAT', 'PR_NOME'] 
 total_textos_limpos = 0
 
-print("="*65)
-print("\n-> Relatório de Limpeza de Textos:")
-for col in colunas_texto:
-    if col in df.columns:
-        # 1. Fotografia do 'antes' (transformando em string para garantir a comparação)
-        antes = df[col].astype(str)
-        print(f"   - Coluna '{col}': {antes.nunique()} valores únicos antes da limpeza. ")
-        print(f"     Exemplos antes da limpeza: {antes.unique()[:10]}")
-        # 2. Aplica a limpeza
-        df[col] = df[col].apply(limpar_texto)
-        
-        # 3. Fotografia do 'depois'
-        depois = df[col].astype(str)
-        
-        # 4. Compara e soma quantas linhas mudaram
-        mudancas = (antes != depois).sum()
-        total_textos_limpos += mudancas
-        
-        print(f"   - Coluna '{col}': {mudancas} textos corrigidos.")
 
-print(f"-> Total geral de textos ajustados na base: {total_textos_limpos}\n")
-
-# Colunas de Números Inteiros (IDs e quantidade de filhos)
-colunas_inteiros = ['CO_ID', 'CL_ID', 'CL_FHL', 'PR_ID'] 
-for col in colunas_inteiros:
-    if col in df.columns:
-        df[col] = df[col].apply(limpar_inteiro)
-
-print("[OK] Transformações de texto e números concluídas!")
-df.head()
-
-print("="*65)
-print("--- INVESTIGAÇÃO: O QUE FOI CORRIGIDO EM 'PR_NOME'? ---")
-
-# 1. Carregamos a base original de novo, mas pegamos APENAS a coluna PR_NOME para ficar rápido
-df_investigacao = pd.read_csv('base_varejo_sprint1.csv', sep=',', usecols=['PR_NOME'])
-
-# 2. Replicamos a nossa função de limpeza
-def limpar_texto(texto):
-    if pd.isna(texto): 
-        return texto
-    return re.sub(r'\s+', ' ', str(texto)).strip().upper()
-
-# 3. Criamos uma coluna NOVA chamada 'NOME_LIMPO' ao lado da original
-df_investigacao['NOME_LIMPO'] = df_investigacao['PR_NOME'].apply(limpar_texto)
-
-# 4. Filtramos para ver APENAS as linhas onde a original é diferente da limpa
-mudancas = df_investigacao[df_investigacao['PR_NOME'] != df_investigacao['NOME_LIMPO']]
-
-# 5. Removemos as duplicatas (para não ver o mesmo erro repetido mil vezes)
-exemplos_unicos = mudancas.drop_duplicates()
-
-print("="*65)
-print(f"Total de produtos com algum tipo de sujeira: {len(mudancas)}")
-print(f"Diferentes tipos de erros encontrados (sem repetição): {len(exemplos_unicos)}\n")
-print("Veja abaixo a comparação (Original vs Limpo):")
-
-# Mostramos as primeiras 20 correções para você investigar
-exemplos_unicos.head(20)
-print("="*65)
-
-# %%
 import pandas as pd
 
 print("Sprint 2: Diagnóstico de Datas Inválidas") 
@@ -132,9 +81,7 @@ print("Relatório de Inconsistências")
 print(linhas_invalidas[['CO_ID', 'DATA']].head(5))
 
 
-# %%
-
-print("PASSO 04: MOMENTO DE DECISÃO E EXPORTAÇÃO")
+print("MOMENTO DE DECISÃO E EXPORTAÇÃO")
 
 print("="*65)
 # A nossa decisão técnica baseada nos 0% de erro:
@@ -145,7 +92,7 @@ print("="*65)
 nome_ficheiro_sprint2 = 'base_varejo_sprint2.csv'
 df.to_csv(nome_ficheiro_sprint2, index=False)
 
-# 03. Quantidade de linhas e colunas - tipos de dados
+# Quantidade de linhas e colunas - tipos de dados
 print("="*65)
 print("Dimensões")
 # Capturando a quantidade de linhas e colunas
@@ -153,7 +100,6 @@ total_linhas, total_colunas = df.shape
 print(f"-> O arquivo possui um total de: {total_linhas} linhas (registros).")
 print(f"-> O arquivo possui um total de: {total_colunas} colunas (variáveis).")
 print("="*65)
-
 
 # Mensagem de encerramento do Sprint
 mensagem_final = (
@@ -165,8 +111,6 @@ mensagem_final = (
 print(mensagem_final)
 print("="*65)
 
-
-# %%
 
 
 

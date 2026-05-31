@@ -1,7 +1,7 @@
-# %% [markdown]
+
 # Sprint 2 (Transformação de Strings, Integer e Float e Datetime): Desenvolvimento das funções de limpeza de texto, inteiros e decimais usando métodos e expressões regulares.
 # 01.	Transformando: strings, integer e float 
-#     Curiosidade:  o que foi corrigido em 'PR_NOME'?
+#     Curiosidade: o que foi corrigido em 'PR_NOME'?
 # 02.	Buscando não conformidades: datas invalidas
 # 03.	Número e Percentual de não conformidades: datas invalidas - 
 # 04.	Momento: Decisão de exclusão ou Ajuste?
@@ -11,7 +11,7 @@ import pandas as pd
 import re
 
 print("Sprint 2 - ")
-print(" 1. Transformando: strings, integer e float")
+print(" Transformando: strings, integer e float")
 
 #  Carregar a base do Sprint 1
 print("-> Carregando a base de dados...")
@@ -30,13 +30,15 @@ def limpar_inteiro(valor):
     apenas_numeros = re.sub(r'\D', '', str(valor))
     return int(apenas_numeros) if apenas_numeros != '' else 0
 
-# ajustes de flosta ja havia sido realizado na primeira analise da tabela
+# ajustes de float ja havia sido realizado na primeira analise da tabela
 pd.set_option('display.float_format', '{:.2f}'.format) 
+
 
 # === APLICAÇÃO NAS SUAS COLUNAS REAIS ===
 colunas_texto = ['CL_GENERO', 'CL_EC', 'CL_SEG', 'PR_CAT', 'PR_NOME'] 
 total_textos_limpos = 0
 
+print("="*65)
 print("\n-> Relatório de Limpeza de Textos:")
 for col in colunas_texto:
     if col in df.columns:
@@ -67,6 +69,7 @@ for col in colunas_inteiros:
 print("[OK] Transformações de texto e números concluídas!")
 df.head()
 
+print("="*65)
 print("--- INVESTIGAÇÃO: O QUE FOI CORRIGIDO EM 'PR_NOME'? ---")
 
 # 1. Carregamos a base original de novo, mas pegamos APENAS a coluna PR_NOME para ficar rápido
@@ -87,17 +90,19 @@ mudancas = df_investigacao[df_investigacao['PR_NOME'] != df_investigacao['NOME_L
 # 5. Removemos as duplicatas (para não ver o mesmo erro repetido mil vezes)
 exemplos_unicos = mudancas.drop_duplicates()
 
+print("="*65)
 print(f"Total de produtos com algum tipo de sujeira: {len(mudancas)}")
 print(f"Diferentes tipos de erros encontrados (sem repetição): {len(exemplos_unicos)}\n")
 print("Veja abaixo a comparação (Original vs Limpo):")
 
 # Mostramos as primeiras 20 correções para você investigar
 exemplos_unicos.head(20)
+print("="*65)
 
 # %%
 import pandas as pd
 
-print(" 2 E 3: DIAGNÓSTICO DE DATAS INVÁLIDAS") 
+print("Sprint 2: Diagnóstico de Datas Inválidas") 
 
 # A sua coluna de datas chama-se 'DATA'
 nome_coluna_data = 'DATA'
@@ -122,7 +127,7 @@ relatorio = (
     f"-> Número de não conformidades (Datas Inválidas): {total_invalidas}\n"
     f"-> Percentual de erro: [{percentual_invalidas:.4f}%"
 )
-print("Sprint 2: Diagnóstico de Datas Inválidas") 
+print("="*65)
 print("Relatório de Inconsistências")
 print(linhas_invalidas[['CO_ID', 'DATA']].head(5))
 
@@ -131,21 +136,34 @@ print(linhas_invalidas[['CO_ID', 'DATA']].head(5))
 
 print("PASSO 04: MOMENTO DE DECISÃO E EXPORTAÇÃO")
 
+print("="*65)
 # A nossa decisão técnica baseada nos 0% de erro:
-print("->Diagnóstico perfeito: 0% de não conformidades nas datas.")
+print("->Diagnóstico: 0% de não conformidades nas datas.")
 print("-> Decisão do Analista: Nenhuma exclusão ou ajuste é necessário. A integridade original será mantida.")
-
+print("="*65)
 # Exportando a base final do Sprint 2 (sem o índice do Pandas)
 nome_ficheiro_sprint2 = 'base_varejo_sprint2.csv'
 df.to_csv(nome_ficheiro_sprint2, index=False)
 
+# 03. Quantidade de linhas e colunas - tipos de dados
+print("="*65)
+print("Dimensões")
+# Capturando a quantidade de linhas e colunas
+total_linhas, total_colunas = df.shape
+print(f"-> O arquivo possui um total de: {total_linhas} linhas (registros).")
+print(f"-> O arquivo possui um total de: {total_colunas} colunas (variáveis).")
+print("="*65)
+
+
 # Mensagem de encerramento do Sprint
 mensagem_final = (
-    f"Transformações de texto aplicadas com sucesso.\n"
-    f"Tipos de dados numéricos (Inteiros) validados.\n"
-    f"Ficheiro exportado: {nome_ficheiro_sprint2}"
+    f"[OK] Sprint 2 Concluído com sucesso!\n"
+    f"-> Transformações de texto aplicadas com sucesso.\n"
+    f"-> Tipos de dados numéricos (Inteiros) validados.\n"
+    f"-> Ficheiro exportado: {nome_ficheiro_sprint2}"
 )
-print("Sprint 2 Concluído")
+print(mensagem_final)
+print("="*65)
 
 
 # %%
